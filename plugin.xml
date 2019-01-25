@@ -30,19 +30,19 @@
   <js-module src="www/com.salesforce.util.push.js" name="util.push"></js-module>
 
   <engines>
-    <engine name="cordova-android" version="7.1.2" />
+    <engine name="cordova-android" version="7.1.4" />
     <engine name="cordova-ios" version="4.5.5" />
   </engines>
 
   <!-- Specific versions of dependencies required by the Mobile SDK plugin -->
-  <dependency id="cordova-plugin-whitelist" version="1.2.0" />
+  <dependency id="cordova-plugin-whitelist" version="1.3.3" />
+  <dependency id="phonegap-plugin-push" version="2.2.3" />
 
   <!-- ios -->
   <platform name="ios">
 
-    <!-- Required by the Mobile SDK plugin for WKWebView -->
-    <dependency id="cordova-plugin-wkwebview-engine" url="https://github.com/apache/cordova-plugin-wkwebview-engine" commit="1.1.4" />
-
+    <dependency id="cordova-plugin-ionic-webview" version="2.1.3" />
+    
     <config-file target="config.xml" parent="/*">
       <preference name="BackupWebStorage" value="local" />
       <preference name="deployment-target" value="11.0" />
