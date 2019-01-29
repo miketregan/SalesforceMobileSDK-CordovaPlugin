@@ -41,7 +41,7 @@
   <!-- ios -->
   <platform name="ios">
 
-    <dependency id="cordova-plugin-ionic-webview" version="2.1.3" />
+    <dependency id="cordova-plugin-ionic-webview" version="2.32" />
     
     <config-file target="config.xml" parent="/*">
       <preference name="BackupWebStorage" value="local" />
