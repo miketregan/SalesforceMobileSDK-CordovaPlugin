@@ -129,7 +129,9 @@ public class SalesforceDroidGapActivity extends CordovaActivity implements Sales
 
     @Override
     protected CordovaWebViewEngine makeWebViewEngine() {
-        final String className = SalesforceWebViewEngine.class.getCanonicalName();
+        // IONIC FIX - Hard code to ionic webview otherwise reload doesn't work
+        final String className = "com.ionicframework.cordova.webview.IonicWebViewEngine";
+        //final String className = SalesforceWebViewEngine.class.getCanonicalName();
         preferences.set("webview", className);
         return CordovaWebViewImpl.createEngine(this, preferences);
     }

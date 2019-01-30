@@ -53,7 +53,7 @@ public class BootConfig {
 
 	// We expect a assets/www/bootconfig.json file to be provided by hybrid apps.
 	private static final String HYBRID_BOOTCONFIG_PATH = "www" +
-			System.getProperty("file.separator") + "bootconfig.json";
+			System.getProperty("file.separator") + "bootconfig-android.json";
 
 	// bootconfig.json should contain a map with the following keys.
 	private static final String REMOTE_ACCESS_CONSUMER_KEY = "remoteAccessConsumerKey";
