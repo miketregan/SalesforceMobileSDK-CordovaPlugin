@@ -98,7 +98,7 @@ if (data.indexOf("SalesforceHybrid") < 0)
     var oldGradleToolsVersion = "com.android.tools.build:gradle:3.0.1";
     var newGradleToolsVersion = "com.android.tools.build:gradle:3.2.1";
     replaceTextInFile(path.join(appProjectRoot, 'app', 'build.gradle'), oldGradleToolsVersion, newGradleToolsVersion);
-    replaceTextInFile(path.join(appProjectRoot, 'app', 'build.gradle'), '4.1.0', '4.6.0');
+    replaceTextInFile(path.join(appProjectRoot, 'app', 'build.gradle'), '4.1.0', '4.10.1');
     replaceTextInFile(path.join(appProjectRoot, 'app', 'build.gradle'), 'mavenCentral()', 'google()');
     var newLibDep = "api project(':SalesforceHybrid')";
     replaceTextInFile(path.join(appProjectRoot, 'app', 'build.gradle'), 'implementation(project(path: \":CordovaLib\"))', newLibDep);
