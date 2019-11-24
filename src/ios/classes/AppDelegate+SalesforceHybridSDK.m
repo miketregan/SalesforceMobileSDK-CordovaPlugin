@@ -26,15 +26,34 @@
 #import "AppDelegate+SalesforceHybridSDK.h"
 #import "UIApplication+SalesforceHybridSDK.h"
 #import "InitialViewController.h"
-#import "SFLocalhostSubstitutionCache.h"
-#import "SFHybridViewConfig.h"
-#import "SalesforceSDKManager.h"
-#import "SFUserAccountManager.h"
-#import "SFPushNotificationManager.h"
-#import "SFSDKAppConfig.h"
-#import "SFSDKAuthHelper.h"
-#import "SalesforceHybridSDKManager.h"
-#import "SFSDKHybridLogger.h"
+#import <SalesforceHybridSDK/SFLocalhostSubstitutionCache.h>
+#import <SalesforceHybridSDK/SFHybridViewConfig.h>
+#import <SalesforceSDKCore/SalesforceSDKManager.h>
+#import <SalesforceSDKCore/SFUserAccountManager.h>
+#import <SalesforceSDKCore/SFPushNotificationManager.h>
+#import <SalesforceSDKCore/SFSDKAppConfig.h>
+#import <SalesforceSDKCore/SFSDKAuthHelper.h>
+#import <SalesforceHybridSDK/SalesforceHybridSDKManager.h>
+#import <SalesforceHybridSDK/SFSDKHybridLogger.h>
+#import <Cordova/CDVCommandDelegateImpl.h>
+
+@implementation CDVCommandDelegateImpl (SalesforceHybridSDK)
++ (void) load
+{
+    method_exchangeImplementations(class_getInstanceMethod(self, @selector(evalJsHelper2:)), class_getInstanceMethod(self, @selector(sfsdk_swizzled_evalJsHelper2:)));
+}
+
+- (void)sfsdk_swizzled_evalJsHelper2:(NSString*)js
+{
+    // Line separator "LS" (U+2028 - character code 8232) and paragraph separator "PS" (U+2029 - character code 8233) are considered line terminators in JavaScript (so need to be escaped in a string) but not in JSON !
+
+    // As a result, a stringified JSON containing non-escaped LS or PS, given to JavaScript will produce a syntax error.
+
+    js = [js stringByReplacingOccurrencesOfString:@"\u2028" withString:@"\\u2028"];
+    js = [js stringByReplacingOccurrencesOfString:@"\u2029" withString:@"\\u2029"];
+    [self sfsdk_swizzled_evalJsHelper2:js];
+}
+@end
 
 @implementation AppDelegate (SalesforceHybridSDK)
 
@@ -51,6 +70,13 @@
 {
     // Need to use SalesforceHybridSDKManager in hybrid apps
     [SalesforceHybridSDKManager initializeSDK];
+    
+#ifdef DEBUG
+    [SalesforceHybridSDKManager sharedManager].isDevSupportEnabled = YES;
+#else
+    [SalesforceHybridSDKManager sharedManager].isDevSupportEnabled = NO;
+#endif
+
     
     //App Setup for any changes to the current authenticated user
     __weak __typeof (self) weakSelf = self;
@@ -92,9 +118,11 @@
     
     [self initializeAppViewState];
      __weak __typeof (self) weakSelf = self;
+
     [SFSDKAuthHelper loginIfRequired:^{
         [weakSelf setupRootViewController];
     }];
+
     return YES; // we don't want to run's Cordova didFinishLaunchingWithOptions - it creates another window with a webview
                 // if devs want to customize their AppDelegate.m, then they should get rid of AppDelegate+SalesforceHybrid.m
                 // and bring all of its code in their AppDelegate.m

@@ -115,10 +115,8 @@ public class SalesforceDroidGapActivity extends CordovaActivity implements Sales
         delegate.onCreate();
     }
 
-    protected ClientManager buildClientManager() {
-        return new ClientManager(this, SalesforceSDKManager.getInstance().getAccountType(),
-                SalesforceSDKManager.getInstance().getLoginOptions(),
-                SalesforceSDKManager.getInstance().shouldLogoutWhenTokenRevoked());
+    public ClientManager buildClientManager() {
+        return SalesforceHybridSDKManager.getInstance().getClientManager();
     }
 
     @Override
@@ -130,7 +128,8 @@ public class SalesforceDroidGapActivity extends CordovaActivity implements Sales
     @Override
     protected CordovaWebViewEngine makeWebViewEngine() {
         // IONIC FIX - Hard code to ionic webview otherwise reload doesn't work
-        final String className = "com.ionicframework.cordova.webview.IonicWebViewEngine";
+        final String className = SalesforceWebViewEngine.class.getCanonicalName();
+        //final String className = "com.ionicframework.cordova.webview.IonicWebViewEngine";
         //final String className = SalesforceWebViewEngine.class.getCanonicalName();
         preferences.set("webview", className);
         return CordovaWebViewImpl.createEngine(this, preferences);
@@ -142,7 +141,7 @@ public class SalesforceDroidGapActivity extends CordovaActivity implements Sales
 
         // Fetches auth config if required.
         try {
-            (new FetchAuthConfigTask()).execute().get();
+            (new FetchAuthConfigTask()).execute();
         } catch (Exception e) {
             SalesforceHybridLogger.e(TAG, "Exception occurred while fetching auth config", e);
         }
@@ -303,10 +302,20 @@ public class SalesforceDroidGapActivity extends CordovaActivity implements Sales
         return delegate.onKeyUp(keyCode, event) || super.onKeyUp(keyCode, event);
     }
 
+    /**
+     * Returns an instance of BootConfig.
+     *
+     * @return Instance of BootConfig.
+     */
     public BootConfig getBootConfig() {
         return bootconfig;
     }
 
+    /**
+     * Returns an instance of RestClient.
+     *
+     * @return Instance of RestClient.
+     */
     public RestClient getRestClient() {
         return client;
     }
@@ -405,6 +414,23 @@ public class SalesforceDroidGapActivity extends CordovaActivity implements Sales
      */
     public void refresh(final String url) {
         SalesforceHybridLogger.i(TAG, "refresh called");
+
+        /*
+         * If client is null at this point, authentication hasn't been performed yet.
+         * We need to trigger authentication, and recreate the webview in the
+         * callback, to load the page correctly. This handles some corner cases
+         * involving hitting the back button when authentication is in progress.
+         */
+        if (client == null) {
+            clientManager.getRestClient(this, new RestClientCallback() {
+
+                @Override
+                public void authenticatedRestClient(RestClient client) {
+                    recreate();
+                }
+            });
+            return;
+        }
         client.sendAsync(RestRequest.getRequestForUserInfo(), new AsyncRequestCallback() {
 
             @Override
